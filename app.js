@@ -15,30 +15,44 @@ var firstTrainTime;
 var frequency;
 var database = firebase.database();
 
-
-firstTrainTime = moment("06:00", "HH:mm");
-var currentTime = moment().format("HH:mm"); //format it 
-currentTime = moment("07:45", "HH:mm"); // make it a moment object 
-console.log(currentTime);
-console.log(firstTrainTime);
-
-var minutesWaited = currentTime.diff(firstTrainTime, "minutes")%25;
-
-var minutesRemaining = frequency - minutesWaited; 
-
-
-
-
-
-database.ref().on("child_added", function(childSnapshot, prevChildKey) {
+// calculate minutes remaining
+// returns an integer 
+// needs firebase child snapshot as a param --- is this good practice? 
+function calculateMinutesRemaining(childSnapshot){
 	//calculate  total billed and months worked - use moment.js 
 	firstTrainTime = moment(childSnapshot.val().firstTrainTime, "HH:mm");
 	var currentTime = moment().format("HH:mm"); //format it 
 	currentTime = moment(currentTime, "HH:mm"); // make it a moment object 
+	frequency = childSnapshot.val().frequency;
+	var minutesRemaining;
+	var minutesWaited = currentTime.diff(firstTrainTime, "minutes")%frequency;
+	var minutesRemaining; 
+
+	if(minutesWaited<0){
+		minutesWaited = Math.abs(minutesWaited);
+		minutesRemaining = frequency - minutesWaited;
+		return minutesRemaining; 
+	}
+	else{
+		minutesRemaining = frequency - minutesWaited; 
+		return minutesRemaining;
+	}
+}
+
+function calculateNextTrainTime(childSnapshot){
+	var currentTime = moment().format("HH:mm"); //format it 
+	currentTime = moment(currentTime, "HH:mm"); // make it a moment object 
+	var minutesRemaining = calculateMinutesRemaining(childSnapshot);
+
+	var NextTrainTime = currentTime.add(minutesRemaining, "m");
+
+	return NextTrainTime.format("HH:mm");
+}
 
 
+database.ref().on("child_added", function(childSnapshot, prevChildKey) {
 
-	//then we need to display information on the html 
+	//create a column for 
 	var row = $("<tr>");
 	var cell_1 = $("<td>");
 	var cell_2 = $("<td>");
@@ -50,8 +64,8 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey) {
 	cell_1.text(childSnapshot.val().name);
 	cell_2.text(childSnapshot.val().destination);
 	cell_3.text(childSnapshot.val().frequency);
-	cell_4.text();
-	cell_5.text();
+	cell_4.text(calculateMinutesRemaining(childSnapshot));
+	cell_5.text(calculateNextTrainTime(childSnapshot));
 
 	row.append(cell_1);
 	row.append(cell_2);
@@ -94,11 +108,9 @@ $("#submit").on("click", function(event){
      });
 
 	// empty the fields 
-	$("#train-name").val();
-	$("#destination").val();
-	$("#first-train-time").val();
-	$("#frequency").val();
-
-
+	$("#train-name").val("");
+	$("#destination").val("");
+	$("#first-train-time").val("");
+	$("#frequency").val("");
 
 }); 
