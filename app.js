@@ -64,8 +64,8 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey) {
 	cell_1.text(childSnapshot.val().name);
 	cell_2.text(childSnapshot.val().destination);
 	cell_3.text(childSnapshot.val().frequency);
-	cell_4.text(calculateMinutesRemaining(childSnapshot));
-	cell_5.text(calculateNextTrainTime(childSnapshot));
+	cell_4.text(calculateNextTrainTime(childSnapshot));
+	cell_5.text(calculateMinutesRemaining(childSnapshot));
 
 	row.append(cell_1);
 	row.append(cell_2);
