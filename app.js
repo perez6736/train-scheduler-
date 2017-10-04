@@ -49,7 +49,6 @@ function calculateNextTrainTime(childSnapshot){
 	return NextTrainTime.format("HH:mm");
 }
 
-
 database.ref().on("child_added", function(childSnapshot, prevChildKey) {
 
 	//create a column for 
@@ -80,8 +79,6 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey) {
 },function(errorObject){
   console.log("The read failed:" + errorObject.code);
 });
-
-
 
 
 // on click do onSubmit()
